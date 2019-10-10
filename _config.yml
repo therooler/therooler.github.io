@@ -1,26 +1,27 @@
 ### Site Settings ###
-title               : A really hip looking static page
+title               : Roeland Wiersema
 description         : >-                               # >- means to ignore newlines until "url:"
                       Phobos & Deimos stand silent
 
 url                 : ""                               # base hostname & protocol for your site (e.g. http://example.com)
 baseurl             : ""                    # subpath of your site (e.g. /blog) [IMPORTANT: use "" if your are hosting at https://username.github.io directly]
-repository          : YoussefRaafatNasry/portfolYOU    # repository metadata on GitHub Pages [know more at https://help.github.com/en/articles/repository-metadata-on-github-pages]
+repository          : therooler/therooler.github.io    # repository metadata on GitHub Pages [know more at https://help.github.com/en/articles/repository-metadata-on-github-pages]
 #remote_theme       : YoussefRaafatNasry/portfolYOU    # uncomment this if you are using it as a remote theme
 
 ### Author Info ###
 author:
   name              : Roeland Wiersema
-  image             : assets/foto.jpg
+  image             : assets/images/foto.jpg
 #  behance           : your_username
 # dribbble          : your_username
   email             : roel.wier@gmail.com
 #  facebook          : your_username
   github            : therooler
+# project-euler     :
 # gitlab            : your_username
 # instagram         : your_username
-#  linkedin          : your_username
-#  medium            : your_username
+# linkedin          : your_username
+# medium            : your_username
 # soundcloud        : your_username
 # spotify           : your_username
 # stackoverflow     : your_user_id

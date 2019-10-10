@@ -7,6 +7,14 @@ weight: 3
 
 # **About Me**
 
-Hi I am **{{ site.author.name }}**,<br>
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+I studied theoretical physics at Radboud University. Also, I was part of a frictionless data-driven cloud platform start-up that uses
+growth hacking business intelligence experts to help transition companies to the 17th century.
 
+If all goes well, I will start my PhD in 2020 at <TBD>. There I will try to calculate things like
+
+- $\sum_i^4 \text{quantity}_i \|\psi_i\rangle $
+- $\prod_{i}^\infty \frac{(\text{stuff})^i}{\text{things}}$
+
+Which will be exciting!
+
+CV

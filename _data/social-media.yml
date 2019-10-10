@@ -11,6 +11,11 @@ dribbble:
   icon  : fab fa-dribbble
   color : 444444
 
+project-euler:
+  url   : http://projecteuler.net/profile/rooler.png
+  icon  : /assets/images/project_euler.ico
+  color : 007bb5
+
 email:
   url   : "mailto:"
   icon  : fas fa-envelope

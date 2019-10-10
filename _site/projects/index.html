@@ -15,7 +15,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Phobos & Deimos stand silent">
 
-  <title>A really hip looking static page</title>
+  <title>Roeland Wiersema</title>
   <link rel="shortcut icon" type="image/x-icon" href="/assets/favicon.ico">
 
   <!-- Font Awesome CDN -->
@@ -29,6 +29,15 @@
   
   <!-- Custom CSS -->
   <link rel="stylesheet" href="/assets/css/style.css" type="text/css">
+  <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+          inlineMath: [['$','$']]
+        }
+      });
+    </script>
+    <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
 
 </head>
 
@@ -38,7 +47,7 @@
   <main class="flex-shrink-0 container mt-5">
   <nav class="navbar navbar-expand-lg navbar-light">
 
-  <a class="navbar-brand" href="/"><h5><b>A really hip looking static page</b></h5></a>
+  <a class="navbar-brand" href="/"><h5><b>Roeland Wiersema</b></h5></a>
 
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
@@ -70,11 +79,13 @@
       
         
           
+            <a class="nav-item nav-link " href=" /about/ ">About</a>
+          
         
       
         
           
-            <a class="nav-item nav-link " href=" /about/ ">About</a>
+            <a class="nav-item nav-link " href=" /other/ ">Other</a>
           
         
       
@@ -82,7 +93,7 @@
   </div>
 
 </nav>
-  <!--<!-- Remote Projects JS -->
+  <!-- Remote Projects JS -->
 <script src="/assets/js/remote-projects.js"></script>
 
 <div class="card-columns m-3 mt-5">
@@ -93,7 +104,75 @@
   <!-- Local Projects -->
   
 
-</div>-->
+    
+    
+    
+    
+    
+    
+
+    
+
+    <div class="wow animated fadeIn" data-wow-delay=".15s">
+  <a href="/projects/1-rocky-raccoon" class="project card text-dark">
+    
+    <img id="rocky-raccoon-img" class="card-img-top" src="/assets/images/logo_xanadu.png" alt="Rocky Raccoon" />
+    
+    <div class="card-body">
+      <h5 id="rocky-raccoon-name" class="card-title">
+          
+        Rocky Raccoon
+      </h5>
+      <p id="rocky-raccoon-desc" class="card-text">Training a quantum machine learning model with the quantum log-likelihood</p>
+      <p id="rocky-raccoon-tools" class="card-text">
+        
+        <span class="badge badge-pill text-primary border border-primary">Python</span>
+        
+        <span class="badge badge-pill text-primary border border-primary">PennyLane</span>
+        
+        <span class="badge badge-pill text-primary border border-primary">Tensorflow</span>
+        
+      </p>
+    </div>
+  </a>
+</div>
+
+  
+
+    
+    
+    
+    
+    
+    
+
+    
+
+    <div class="wow animated fadeIn" data-wow-delay=".15s">
+  <a href="/projects/2-project-google" class="project card text-dark">
+    
+    <img id="master-thesis-img" class="card-img-top" src="/assets/images/radboud_logo.png" alt="Master Thesis" />
+    
+    <div class="card-body">
+      <h5 id="master-thesis-name" class="card-title">
+          
+        Master Thesis
+      </h5>
+      <p id="master-thesis-desc" class="card-text">The result of a year long internship for my degree in Theoretical Physics, supervised by Professor Bert Kappen.</p>
+      <p id="master-thesis-tools" class="card-text">
+        
+        <span class="badge badge-pill text-primary border border-primary">Master Thesis</span>
+        
+        <span class="badge badge-pill text-primary border border-primary">Radboud University</span>
+        
+      </p>
+    </div>
+  </a>
+</div>
+
+  
+
+</div>
   </main>
 
   <footer class="mt-auto py-3 text-center">
