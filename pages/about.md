@@ -17,4 +17,4 @@ If all goes well, I will start my PhD in 2020 at <TBD>. There I will try to calc
 
 Which will be exciting!
 
-CV
+Link to [CV](/assets/pdf/cv_rwiersema.pdf)
