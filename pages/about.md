@@ -7,14 +7,17 @@ weight: 3
 
 # **About Me**
 
-I studied theoretical physics at Radboud University. Also, I was part of a frictionless data-driven cloud platform start-up that uses
-growth hacking business intelligence experts to help transition companies to the 17th century.
+I studied theoretical physics at Radboud University, doing a bachelor in physics and astronomy and specializing in 
+particle physics in my master. During a one year master internship in the group of Professor Bert Kappen,
+I investigated the how quantum physics can be used to improve machine learning algorithms. Specifically, I developed a 
+quantum equivalent of the perceptron, that makes use of a generalization of the cross entropy to learn a parametrized quantum
+systen.
 
-If all goes well, I will start my PhD in 2020 at <TBD>. There I will try to calculate things like
+Additionally, since 2017 I have been part of a frictionless data-driven cloud platform start-up that uses
+growth hacking business intelligence experts to help transition companies to the 17th century. 
 
-- $\sum_i^4 \text{quantity}_i \|\psi_i\rangle $
-- $\prod_{i}^\infty \frac{(\text{stuff})^i}{\text{things}}$
 
-Which will be exciting!
+
+If all goes well, I will start my PhD in 2020 at To, in Be-Determined, under the supervision of professor T.B. Determined.
 
 Link to [CV](/assets/pdf/cv_rwiersema.pdf)
