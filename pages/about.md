@@ -16,8 +16,6 @@ systen.
 Additionally, since 2017 I have been part of a frictionless data-driven cloud platform start-up that uses
 growth hacking business intelligence experts to help transition companies to the 17th century. 
 
-
-
 If all goes well, I will start my PhD in 2020 at To, in Be-Determined, under the supervision of professor T.B. Determined.
 
 Link to [CV](/assets/pdf/cv_rwiersema.pdf)
