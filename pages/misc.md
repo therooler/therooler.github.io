@@ -14,3 +14,4 @@ weight: 4
  solvable by a computer in under a minute time. Often, solving these problems requres you to gain some insight into a specific
   piece of math. This can be a theorem from number theory, intuition about geometry or understanding a graph theory algoritm.
   As of Oktober 2019, I have competed [60 problems](http://projecteuler.net/profile/rooler.png).
+- With regards to sports, I like to play football (the European kind).

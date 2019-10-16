@@ -7,6 +7,9 @@ description: Training a quantum machine learning model with the quantum log-like
  
 ## Rocky Raccoon
  
-Well the following is important:
+See the Xanadu [article](https://medium.com/xanaduai/xanadu-software-competition-the-results-are-in-9ccb6a3b591b) on Medium for for more!
 
-$ \sum_i^\infty f(x_i)$
+*Under construction*
+
+<img style="float: left;" src="/assets/images/wip.jpg">  
+
