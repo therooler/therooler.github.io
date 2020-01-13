@@ -13,9 +13,10 @@ I investigated the how quantum physics can be used to improve machine learning a
 quantum equivalent of the perceptron, that makes use of a generalization of the cross entropy to learn a parametrized quantum
 systen.
 
-Additionally, since 2017 I have been part of a frictionless data-driven cloud platform start-up that uses
-growth hacking business intelligence experts to help transition companies to the 17th century. 
+Since 2017, I have also been part of a data science start-up with three fellow students from Radboud University. 
+Through this experience I learned a lot about software development and appyling machine learning in the industry.
 
-If all goes well, I will start my PhD in 2020 at To, in Be-Determined, under the supervision of professor T.B. Determined.
+I am currently a PhD candidate at Waterloo University with a position at the Vector Institute in Toronto. My research is
+supervised by professor Juan Felipe Carrasquilla.
 
 Link to [CV](/assets/pdf/cv_rwiersema.pdf)
