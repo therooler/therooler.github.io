@@ -94,10 +94,179 @@
 
 </nav>
   <div class="col-lg-10 mx-auto mt-5 article">
-  <p><em>Under construction</em></p>
+  <h2 id="introduction">Introduction</h2>
 
-<p><img style="float: left;" src="/assets/images/wip.jpg" /></p>
+<p>For the master’s course Mone Carlo Techniques in 2017, I assisted professors Kleiss’ research by implementing RAMBO in Python to uniformly sample <script type="math/tex">n</script>-particle phase space and 
+ minimize the following quantity:</p>
 
+<script type="math/tex; mode=display">R = - \sum_{ab} Q_a Q_b (1 - \cos(\theta_{ab})) \quad \text{1.)}</script>
+
+<p>Where <script type="math/tex">Q_{a,b}</script> are fermion charches and</p>
+
+<script type="math/tex; mode=display">\cos\left(\theta_{ij}\right) = 1-\frac{\vec{p_i} \vec{p_j}}{p^0_{i} p^0_{j}}</script>
+
+<p>is the angle between two fermions. This quantity <script type="math/tex">R</script> resembles the <em>eikonal factors</em> of a QFT matrix element.
+The case where <script type="math/tex">R\to 0</script> is a relevant limiting case. The details of this research are explained in [1], but a short summary will be presented here.</p>
+
+<p>Quantum Chromodynamics (QCD) raditation is dominant in Large Hadron Collider (LHC) experiments. However, other types of radiation are allowed in the Standard Model.
+This radiation should be interleaved with the dominant QCD radiation in order to get a precise understanding of the LHC experiments.</p>
+
+<p><img src="/assets/images/project_mcmc/cms.png" alt="" />
+<strong><em>Figure 1.)</em></strong> <em>Simulating the outcome of LHS collisions is a major field of research, for which powerful numerical methods have to be developed [2]</em></p>
+
+<p>While most event generators (which are used to simulate the physics in LHC experiments) can simulate Quantum Electrodynamics (QED) radiation, 
+these simulations lack some key physical properties. Devising an algorithm to include the correct physics is non-trivial.
+The authors of [1] introduce a parton shower formalism which produces coherent QED radiation and which can be interleaved in a regular QCD shower. 
+For this algorithm, they estimate an upper bound of the splitting function (function that gives the probability of a particle of type A emitting a particle of type B) of a certain physical process.
+This upper bound correlates with the quantity R.</p>
+
+<p>Luckily, I did not have to bother with any of that. My goal for this project was simply to sample the <script type="math/tex">n</script>-particle phase space using an algorithm
+called RAMBO, and then investigate if simulated annealing could be used to to minimize <script type="math/tex">R</script>.</p>
+
+<h2 id="rambo">RAMBO</h2>
+
+<p>In order to calculate branching ratios or decay rates in Quantum Field Theory (QFT), we have to evaluate integrals over
+a Lorentz invariant measure. This measure ensures that the quantities we calculate are independent of our frame of reference,
+which is crucial when one is doing relativistic physics. For a single particle with mass $m$, the phase space is given by</p>
+
+<script type="math/tex; mode=display">d\Pi^{(1)} = \frac{d^4 p}{(2\pi)^4} (2\pi) \delta(p^2 - m^2) \Theta(E)</script>
+
+<p>Where we apply the usual convention that <script type="math/tex">\hbar=c=1</script>. <script type="math/tex">\Theta</script> is the step function which ensures that
+<script type="math/tex">E>0</script> and the delta function ensures that the particle is on-shell (follows the relativistic mass energy relation <script type="math/tex">E^2 - p^2 = m^2</script>).</p>
+
+<p>We can extend this definition to <script type="math/tex">n</script> massless particle phase space:</p>
+
+<script type="math/tex; mode=display">d\Pi^{(n)} = \prod^n_{i=1}\left [ \frac{d^4 p}{(2\pi)^4} (2\pi) \delta(p^2) \Theta(E) \right ] \left(P - \sum_{i=1}^n p_i\right)</script>
+
+<p>where we now also account for the conservation of momentum by introducing an additonal delta function. Sampling this phase space 
+uniformly is non-trivial, but possible with the RAMBO algorithm [4]. This algorithm allows one to sample isotropically from a massless 
+$n$-particle phaes space for a given invariant mass $S_{\text{inv}} = \sum_i^n (p_i)^2$. The Python code I used at the time
+looks as follows:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+
+
+<span class="k">def</span> <span class="nf">k_dot_q</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">q</span><span class="p">):</span>
+    <span class="s">'''
+    Minkowski product
+
+    :param k: 4-vector
+    :param q: 4-vector
+    :return: innerproduct using metric diag(1,-1,-1,-1)
+    '''</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">k</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">k</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">4</span><span class="p">],</span> <span class="n">q</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">4</span><span class="p">]))</span>
+
+
+<span class="k">def</span> <span class="nf">RAMBO</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+    <span class="s">'''
+    RAMBO (RAndom Momenta BOoster)
+
+    A DEMOCRATIC MULTI-PARTICLE PHASE SPACE GENERATOR
+    AUTHORS:  S.D. ELLIS,  R. KLEISS,  W.J. STIRLING
+    Python version by Roeland Wiersema
+
+    The RAMBO algorithm aims at generating points in an n-particle phase space
+    in the ultra-relativistic limit, where the particle masses can be neglected.
+    The task is not only to obtain four-momenta that satisfy the constraints of
+    energy and momentum conservation, but also we have to ensure that the whole
+    phase space is covered, with as uniform a density as possible.
+
+    :param n: Number of particles
+    :param s: total invariant mass: sqrt(s)
+    :return p: n momentum fourvectors in (n,4) numpy array
+    '''</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s">'float64'</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="n">q</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">()</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">())</span>
+        <span class="n">C</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="n">S</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">C</span> <span class="o">*</span> <span class="n">C</span><span class="p">)</span>
+        <span class="n">F</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">()</span>
+        <span class="n">q</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">q</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">S</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">F</span><span class="p">)</span>
+        <span class="n">q</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">q</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">S</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">F</span><span class="p">)</span>
+        <span class="n">q</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">q</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">C</span>
+    <span class="c1"># get k
+</span>    <span class="n">k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="nb">sum</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="c1"># calculate u using metric g = diag(1,-1,-1,-1)
+</span>    <span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">k_dot_q</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span>
+    <span class="c1"># initialize
+</span>    <span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s">'float64'</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="c1"># assign p0
+</span>        <span class="n">p</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">/</span> <span class="n">u</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">k_dot_q</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">q</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+        <span class="c1"># assign p_vector
+</span>        <span class="n">p</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">:</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">/</span> <span class="n">u</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> \
+                    <span class="p">(</span><span class="n">u</span> <span class="o">*</span> <span class="n">q</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">:</span><span class="mi">4</span><span class="p">]</span> <span class="o">-</span> <span class="n">k</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">4</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">k_dot_q</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">q</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">+</span> <span class="n">u</span> <span class="o">*</span> <span class="n">q</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">u</span> <span class="o">+</span> <span class="n">k</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+
+    <span class="k">return</span> <span class="n">p</span>
+</code></pre></div></div>
+<p>Whi</p>
+
+<h2 id="simulated-annealing">Simulated Annealing</h2>
+
+<p>We define a Gibbs distribution</p>
+
+<script type="math/tex; mode=display">p(\theta_1,...,\theta_n,q_1,...q_n) = \frac{1}{Z} \exp(-\beta R)</script>
+
+<p>where the energy <script type="math/tex">R</script> is defined as in equation 1.). To perform a random walk we vary the angles $\theta_i$ and flip the charges $q$.
+To shift the angles between the momentum four vectors we have to ensure that the invariant mass $S_{\text{inv}}$ stays the same. 
+We also require the momenta to remain massless, so $p^{\mu} p_{\mu}=0$. 
+Finally, we need the vector parts of the four-momentum to add up to zero, so $\sum_{i=1}^{n}\vec{p_i}=0$ so that we stay in the center of
+mas system. To achieve all of this, we perform a Lorentz boost to the rest system of two randomly selected fermions, and use a rotation
+in the <script type="math/tex">x</script>, $y$ or $z$ direction to rotate the two chose four vectors. Then we boost back to the initial system. We define</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{align}
+p &= p_a+p_b\nonumber\\
+s &= p^2=q^2\nonumber\\
+\text{where } q &= (\sqrt{s},0,0,0)\nonumber\\
+\text{and } q &= q_a+q_b\nonumber
+\end{align} %]]></script>
+
+<p>Then, to boost the frame $S$ to the frame <script type="math/tex">S^\prime</script> with momentum we use the following transformation</p>
+
+<script type="math/tex; mode=display">\Lambda(p\rightarrow q)^{\mu}_{\nu} = \delta^{\mu}_{\nu} - \frac{1}{s+p^0\sqrt{s}}(p+q)^{\mu}(p+q)_{\nu}+\frac{2}{s}q^{\mu}p_{\nu}</script>
+
+<p>which gives</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{align}
+q^{0}_{a} &= \Lambda(p\rightarrow q)^{0}_{\nu} p^{\nu}_{a} = \frac{p \cdot p_{a}}{\sqrt{s}}\\
+q^{i}_{a} &= \Lambda(p\rightarrow q)^{i}_{\nu} p^{\nu}_{a} = p^{i}_{a} - \frac{p^{0}_{a}+q^{0}_{a}}{\sqrt{s}+p^0} p^i
+\end{align} %]]></script>
+
+<p>for the boost <strong>to</strong> the rest system. In this rest system we perform a rotation $q^\prime = R^\alpha(q, \delta \theta)$, where $R^\alpha$ is the standard
+3D rotation around the $\alpha=x,y,z$ axis. Then we boost <strong>from</strong> the rest system back to the original frame of reference:</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{align}
+p^{0,\prime}_{a} &= \Lambda(q^\prime\rightarrow p^\prime)^{0}_{\nu} q^{\nu,\prime}_{a} = \frac{p^0 q^0_a+p^i q^i_a}{\sqrt{s}}\\
+p^{i,\prime}_{a} &= \Lambda(q^\prime\rightarrow p^\prime)^{i}_{\nu} q^{\nu, \prime}_{a} = q^{i}_{a} + \frac{q^{0}_{a}+p^{0,\prime}_{a} }{\sqrt{s}+p^0} p^i
+\end{align} %]]></script>
+
+<p>Additionally, we also swap the fermion charges $Q_a$ and $Q_b$ randomly, so that charge is conserved.</p>
+
+<p>Next, we perform the standard simulated annealing schedule, where we start from some low initial temperature $\beta_0$ in our Gibbs distribution
+and slowly anneal to a high value of $\beta$ to freeze the dynamics of the random walk. Thermal fluctuations at higher temperature
+allow us to escape local minimia, and if we cool slowly enough, we expect to find the global minimimum of the energy function.</p>
+
+<p>In the plot below, we see that this method was succesful in finding a $R\approx 0$ momentum state</p>
+
+<p><img src="/assets/images/project_mcmc/result.png" alt="" />
+<strong><em>Figure 2.)</em></strong> <em>Simulated annealing results for 6 fermions with an invariant mass of $S_{inv} = 20$MeV. The efficiency leaves something to be desired, but simulated annealing seems to work for sampling 
+$R \approx 0$</em> states.</p>
+
+<h2 id="bibliography">Bibliography</h2>
+<p>[1] <em>Final-state QED multipole radiation in antenna parton showers</em>, <strong>Journal of High Energy Physics</strong>, R. Kleiss and  R. Verheyen, 2017</p>
+
+<p>[2] <em>CMS Collaboration</em>, <strong>CERN</strong>, http://cds.cern.ch/record/1309898, 2010</p>
+
+<p>[3] <em>Lecture notes Quarks and Leptons</em>, <strong>Frank Krauss</strong>, https://www.ippp.dur.ac.uk/~krauss/Lectures/QuarksLeptons/, 2005</p>
+
+<p>[4]  <em>A New Monte Carlo Treatment of Multiparticle Phase Space at High-energies</em>, <strong>R. Kleiss, W.James Stirling, S.D. Ellis</strong>, Computer Physics Communications, 1985</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Comput.Phys.Commun. 40 (1986) 359
+</code></pre></div></div>
 
 </div>
   </main>
@@ -177,6 +346,7 @@ $(function () {
     $('[data-toggle="tooltip"]').tooltip()
 })
 </script>
+
 
 </body>
 

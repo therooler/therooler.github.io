@@ -94,10 +94,94 @@
 
 </nav>
   <div class="col-lg-10 mx-auto mt-5 article">
-  <p><em>Under construction</em></p>
+  <h2 id="introduction">Introduction</h2>
+<p>The goal of this research project was to show that we can construct quantum statistics from classical data, and subsequently use this
+information to improve on the classical perceptron model. In a 2019 <a href="https://journals.aps.org/pra/abstract/10.1103/PhysRevA.100.020301">Physical Review A</a> paper [1], 
+we show that this can lead to noticeable performance gain for certain data sets. This research was done at Raboud University under
+supervision of professor Bert Kappen and was the main subject of my master’s thesis, which can be found <a href="https://github.com/therooler/master-thesis/blob/master/main.pdf">here</a> [2].</p>
 
-<p><img style="float: left;" src="/assets/images/wip.jpg" /></p>
+<h2 id="classical-perceptron">Classical Perceptron</h2>
+<p>The classical perceptron is a linear classifier that can be used for binary classification. It assigns a probability
+<script type="math/tex">p(y = 1|x) = f(x\cdot w)</script> to a class <script type="math/tex">y \in \{0,1\}</script>, based on input <script type="math/tex">x</script> and trainable weights <script type="math/tex">w</script> with <script type="math/tex">f(x)</script> a nonlinear 
+activation function. The activation function of the perceptron is often taken to be a sigmoid, since it produces an 
+output between <script type="math/tex">0</script> and <script type="math/tex">1</script> and is equivalent to logistic regression. In short,</p>
 
+<script type="math/tex; mode=display">p(y=1|x;w) = S (x\cdot w)</script>
+
+<p>Where <script type="math/tex">S:\mathbb{R} \to \mathbb{R}</script> is the sigmoid activation function. The perceptron is of particular 
+interest in machine learning because it is the building block of multilayer neural networks, 
+the driving force behind deep learning.</p>
+
+<p>Learning the correct weights to provide the optimal classification of the data requires a cost associated with how well our
+model is predicting the data. For the classical perceptron, we use the negative log-likelihood for this.</p>
+
+<script type="math/tex; mode=display">\mathcal{L} = - \sum_x q(x) \sum_y q(y|x) \log p(y|x;w)  \quad(1)</script>
+
+<p>Here, <script type="math/tex">q(x)</script> is the empirical probability of observingx, <script type="math/tex">q(y|x)</script> is the empirical conditional probability 
+of observing label <script type="math/tex">y</script> for data <script type="math/tex">x</script>, and <script type="math/tex">p(y|x,w)</script> is the proposed model conditional probability distribution of the data.
+By minimizing this cost function with respect to the parameters <script type="math/tex">w</script>, we find the optimal model to explain the data (This cost function is convex).</p>
+
+<h2 id="quantum-perceptron">Quantum Perceptron</h2>
+<p>To extend the classical likelihood in Eq. (1) to the realm of quantum mechanics we require a description ofour model and 
+the conditional probability <script type="math/tex">q(y|x)</script> in termsof density matrices. The density matrix contains the classical uncertainty 
+we have about a quantum state. If this matrix is rank one, we have what is known as a pure state, in which case there is no classical 
+uncertainty about what quantum state the system is in. If the density matrix has rank<script type="math/tex">>1</script>, then we have a so-called mixed state. 
+For our model we will consider a parametrized mixed state, since this will allow us to capture the uncertainty in the data. 
+To perform learning, we require a learning rule that preserves the Hermiticity, positive semidefiniteness and trace of the density matrix.
+We consider the specific case where the data consist of <script type="math/tex">N</script> discrete vectors <script type="math/tex">x\in \{1,−1\}^d</script> with <script type="math/tex">d</script> bits and <script type="math/tex">y\in\{1,−1\}</script> labels. 
+We define the quantum log-likelihood as a cross entropy between a conditional data density matrix <script type="math/tex">\eta_x</script> and a model conditional density 
+matrix <script type="math/tex">\rho_x</script>, analogous to Eq. (1).  For each <script type="math/tex">x</script>, we construct a wave function based on the empirical conditional probabilities <script type="math/tex">q(y|x)</script></p>
+
+<script type="math/tex; mode=display">|\psi\rangle = \sqrt{q(1|x)}|1\rangle + \sqrt{q(1|x)} |-1\rangle</script>
+
+<p>Then, we define <script type="math/tex">\eta_x = \vert\psi \rangle \langle \psi\vert</script>. Our model density matrix  is defined as</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{align} \rho_x &= 1+ \sum_i \sigma^k m^k(x;w^k)\\
+m^k &= \tanh(h) \frac{h^k}{h}\\
+h^k &= x\cdot w^k \quad \text{and} \quad \sqrt{\sum_k h^k} \end{align} %]]></script>
+
+<p>Where, <script type="math/tex">\sigma^k</script> is one of the three pauli matrices. For the full derivation and motivation of this model, 
+see the <a href="https://arxiv.org/abs/1905.06728">full paper</a> [1]. With these definitions in place, we can write the the quantum negative log-likelihood
+as</p>
+
+<script type="math/tex; mode=display">\mathcal{L}_q = - \sum_x q(x) \eta_x \log \rho_x</script>
+
+<p>Minimizing this cost function with respect to the parameters <script type="math/tex">w^k</script> gives us update rules with specific properties</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{align}\frac{\partial \mathcal{L}_{q}}{\partial \mathbf{w}^x} &= -\sum_{\mathbf{x}} q(\mathbf{x})  \left(\sqrt{1 - b(\mathbf{x})^2}  - \frac{h^x}{h} \tanh h \right)\mathbf{x}\\
+\frac{\partial \mathcal{L}_{q}}{\partial \mathbf{w}^y} &= \sum_{\mathbf{x}} q(\mathbf{x})  \left(\frac{h^y}{h} \tanh h\right)  \mathbf{x}\\
+\frac{\partial \mathcal{L}_{q}}{\partial \mathbf{w}^z} &= -\sum_{\mathbf{x}} q(\mathbf{x})  \left( b(\mathbf{x}) - \frac{h^z}{h} \tanh h \right)\mathbf{x} \end{align} %]]></script>
+
+<p>Where <script type="math/tex">b = \frac{1}{M}\left(\sum_{x^\prime} y^{\prime}\mathbb{I}(x^\prime=x)\right)</script> and <script type="math/tex">M = \sum_{x^\prime}\mathbb{I}(x^\prime = x)</script>.
+What do these gradients tell us? First of all,
+the <script type="math/tex">w^y</script> weights have a fixed point solution that is always zero, so they serve no purpose in our model.
+Secondly, if the <script type="math/tex">w^x</script> weights are zero, then the quantum model and likelihood reduce to their classical equivalents. 
+The proposed quantum perceptron is thus a generalization of the classical perceptron. Finally, we see that the solutions 
+of the classical and quantum model diverge for non-zero <script type="math/tex">w^x</script>. More specifically, in the case of non-zero <script type="math/tex">w^x</script> the curves of
+probability are given by quadric surfaces instead of a hyperplane (see the appendix of the full paper for a more detailed explanation). 
+This divergence occurs when <script type="math/tex">1 - b^2 \neq 0</script>, or in other words, when there are no unique <script type="math/tex">x</script> in the data with conflicting labels <script type="math/tex">y</script>.
+An example of the behaviour of this model can be seen in the figure below.</p>
+
+<p><img src="../assets/images/project_qperc/qperceptron.png" alt="" />
+<strong><em>Figure 1.)</em></strong> <em>Consider the data <script type="math/tex">x = \{(1,1),$(1,-1), (-1,1), (-1,-1) \}</script>  with labels <script type="math/tex">y = \{-1,-1,1,-1\}</script> respectively. 
+This problem is trivial since it is linearly separable and both the classical and quantum perceptron converge to the same solution (<script type="math/tex">w^{x,y}=0</script> 
+and <script type="math/tex">w^z \approx w_{cl}</script>). However, if we flip some of the output labels to simulate mislabeled samples or errors in 
+the data, we suspect that the quantum perceptron will perform better. We make <script type="math/tex">40</script> copies of the four data points in the binary feature
+ space and for <script type="math/tex">x\in \{(1,-1),(-1,-1)\}</script> we flip <script type="math/tex">30\%</script> of the outputs from <script type="math/tex">-1</script> to <script type="math/tex">1</script>. 
+ The probability boundaries of the perceptrons differ significantly. The quantum peceptron is better in capturing the uncertainty in the data
+ by assigning quadric probability boundaries.</em></p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>We found that introducing a quantum model can lead to non-trivial behaviour in the model that can lead to an improved performance for specific problems.</p>
+
+<h3 id="bibiliography">Bibiliography</h3>
+
+<p>[1] <em>Implementing perceptron models with qubits</em>, R. C. Wiersema and H. J. Kappen, <strong>Phys. Rev. A 100, 020301(R)</strong>, 2019</p>
+
+<p>[2] <em>Quantum Perceptron Learning</em>, R. C. Wiersema, <strong>Master’s thesis</strong>, 2019</p>
 
 </div>
   </main>
@@ -177,6 +261,7 @@ $(function () {
     $('[data-toggle="tooltip"]').tooltip()
 })
 </script>
+
 
 </body>
 
