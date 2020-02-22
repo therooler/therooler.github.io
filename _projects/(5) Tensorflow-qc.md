@@ -2,7 +2,7 @@
 name: Tensorflow-qc
 tools: [Quantum Machine Learning, Python, Tensorflow, Quantum Simulators]
 image: /assets/images/tfqc.png
-description: Training a quantum machine learning model with the quantum log-likelihood
+description: A GPU-accelerated Quantum Simulator for Hybrid optimization.
 ---
  
 ## Tensorflow-qc
